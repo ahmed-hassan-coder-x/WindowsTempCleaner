@@ -31,7 +31,7 @@ namespace WindowsTempCleaner
                 try
                 {
                     if (!Directory.Exists(folder)) continue;
-                    var files = Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories);
+                    var files = Directory.EnumerateFiles(folder, "*", System.IO.SearchOption.AllDirectories);
                     foreach (var f in files)
                     {
                         try
