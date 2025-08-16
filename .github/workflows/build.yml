@@ -42,7 +42,7 @@ jobs:
       - name: Rename exe file with git short hash
         shell: pwsh
         run: |
-          $oldPath = "WindowsTempCleaner\bin\Release\net6.0-windows\WindowsTempCleaner.exe"
+          $oldPath = "WindowsTempCleaner\WindowsTempCleaner\bin\Release\net6.0-windows\WindowsTempCleaner.exe"
           $newName = "WindowsTempCleaner-$env:SHORT_HASH.exe"
           if (Test-Path $oldPath) {
             Rename-Item -Path $oldPath -NewName $newName
@@ -55,7 +55,7 @@ jobs:
       # 8. Show build output (for debugging)
       - name: Show build output
         shell: pwsh
-        run: Get-ChildItem "WindowsTempCleaner\bin\Release\net6.0-windows"
+        run: Get-ChildItem "WindowsTempCleaner\WindowsTempCleaner\bin\Release\net6.0-windows"
 
       # 9. Publish build artifacts
       - name: Publish build artifacts
@@ -63,4 +63,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WindowsTempCleaner-Build-${{ env.SHORT_HASH }}
-          path: WindowsTempCleaner\bin\Release\net6.0-windows\
+          path: WindowsTempCleaner\WindowsTempCleaner\bin\Release\net6.0-windows\
