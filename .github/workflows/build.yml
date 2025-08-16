@@ -1,0 +1,66 @@
+name: Build WindowsTempCleaner
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Setup MSBuild
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      # 3. Setup NuGet CLI
+      - name: Setup NuGet CLI
+        uses: NuGet/setup-nuget@v1
+
+      # 4. Restore NuGet packages
+      - name: Restore NuGet packages
+        run: nuget restore "WindowsTempCleaner.sln"
+
+      # 5. Build solution (Release)
+      - name: Build WindowsTempCleaner
+        run: msbuild "WindowsTempCleaner.sln" /p:Configuration=Release /p:Platform="Any CPU"
+
+      # 6. Get git short hash
+      - name: Get git short hash
+        id: get_hash
+        run: echo "SHORT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        shell: bash
+
+      # 7. Rename exe file with git short hash
+      - name: Rename exe file with git short hash
+        shell: pwsh
+        run: |
+          $oldPath = "WindowsTempCleaner\bin\Release\net6.0-windows\WindowsTempCleaner.exe"
+          $newName = "WindowsTempCleaner-$env:SHORT_HASH.exe"
+          if (Test-Path $oldPath) {
+            Rename-Item -Path $oldPath -NewName $newName
+            Write-Host "Renamed to $newName"
+          } else {
+            Write-Host "Executable not found at $oldPath"
+            exit 1
+          }
+
+      # 8. Show build output (for debugging)
+      - name: Show build output
+        shell: pwsh
+        run: Get-ChildItem "WindowsTempCleaner\bin\Release\net6.0-windows"
+
+      # 9. Publish build artifacts
+      - name: Publish build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: WindowsTempCleaner-Build-${{ env.SHORT_HASH }}
+          path: WindowsTempCleaner\bin\Release\net6.0-windows\
